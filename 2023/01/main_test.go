@@ -18,8 +18,33 @@ func TestCalibrationValue(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		n, err := GetDigit(tc.input)
-		assert.Nil(t, err)
-		assert.Equal(t, tc.number, n)
+		t.Run(tc.input, func(t *testing.T) {
+			n, err := GetDigit(tc.input)
+			assert.Nil(t, err)
+			assert.Equal(t, tc.number, n)
+		})
+	}
+}
+
+func TestCalibrationValue2(t *testing.T) {
+	cases := []struct {
+		input  string
+		number int
+	}{
+		{"two1nine", 29},
+		{"eightwothree", 83},
+		{"abcone2threexyz", 13},
+		{"xtwone3four", 24},
+		{"4nineeightseven2", 42},
+		{"zoneight234", 14},
+		{"7pqrstsixteen", 76},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.input, func(t *testing.T) {
+			n, err := GetDigitWords(tc.input)
+			assert.Nil(t, err)
+			assert.Equal(t, tc.number, n)
+		})
 	}
 }
