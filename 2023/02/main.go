@@ -21,12 +21,15 @@ var (
 // game implements TextUnmarshaler
 type game struct {
 	ID   int
-	Sets [][]cube
+	Sets []Set
+}
+
+func (g *game) AddSet(set Set) {
+	g.Sets = append(g.Sets, set)
 }
 
 func (g *game) UnmarshalText(text []byte) error {
 	// match the first outer grouping
-	// match := gameRe.FindSubmatch(text)
 	match := gameRe.FindSubmatch(text)
 	if len(match) != 3 {
 		return errors.New("regex does not match 3 captures")
@@ -39,24 +42,44 @@ func (g *game) UnmarshalText(text []byte) error {
 	}
 	g.ID = n
 
+	var set Set
 	// parse the rest of the line
 	for _, match := range cubeRe.FindAllSubmatch(match[2], -1) {
-		fmt.Printf("%q\n", match)
 		if len(match) != 4 {
 			return errors.New("regex does not match 4 captures")
 		}
+		fmt.Printf("%q\n", match)
+		color := string(match[2])
+		count, err := strconv.Atoi(string(match[1]))
+		if err != nil {
+			return err
+		}
+
+		switch color {
+		case "red":
+			set.Red = count
+		case "green":
+			set.Green = count
+		case "blue":
+			set.Blue = count
+		default:
+			return fmt.Errorf("unknown color %s", color)
+		}
+
 		switch string(match[3]) {
-		case ",":
-			fmt.Println("found cube")
 		case ";", "":
-			fmt.Println("found end of round")
+			// zero out our set once we reach the end
+			fmt.Printf("set: %+v\n", set)
+			g.AddSet(set)
+			set = Set{}
 		}
 	}
+
 	return nil
 }
 
-type cube struct {
-	Color string
+type Set struct {
+	Green, Red, Blue int // set holds counts for each 'cube'
 }
 
 func main() {
@@ -79,4 +102,7 @@ func main() {
 
 	fmt.Printf("%v\n", games)
 	fmt.Printf("found %d games\n", len(games))
+	for _, g := range games {
+		fmt.Printf("%+v\n", g)
+	}
 }
