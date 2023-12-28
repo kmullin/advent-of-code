@@ -38,6 +38,21 @@ func (g *game) IsPossible(red, green, blue int) bool {
 	return true
 }
 
+func (g *game) MinimumPossible() (cs cubeSet) {
+	for _, s := range g.Sets {
+		if s.Red > cs.Red {
+			cs.Red = s.Red
+		}
+		if s.Green > cs.Green {
+			cs.Green = s.Green
+		}
+		if s.Blue > cs.Blue {
+			cs.Blue = s.Blue
+		}
+	}
+	return
+}
+
 func (g *game) UnmarshalText(text []byte) error {
 	// match the first outer grouping
 	match := gameRe.FindSubmatch(text)
@@ -112,6 +127,7 @@ func main() {
 
 	// games possible
 	fmt.Printf("sum of games that were possible: %d\n", gamesPossible(games))
+	fmt.Printf("sum of the power of sets: %d\n", powerOfMinimumSets(games))
 }
 
 func gamesPossible(games []game) (sum int) {
@@ -119,6 +135,14 @@ func gamesPossible(games []game) (sum int) {
 		if g.IsPossible(12, 13, 14) {
 			sum += g.ID
 		}
+	}
+	return
+}
+
+func powerOfMinimumSets(games []game) (power int) {
+	for _, g := range games {
+		cs := g.MinimumPossible()
+		power += cs.Red * cs.Green * cs.Blue
 	}
 	return
 }

@@ -25,7 +25,26 @@ func TestGameParsing(t *testing.T) {
 		games = append(games, g)
 	}
 
+	var answer []int
 	for _, g := range games {
+		if g.IsPossible(12, 13, 14) {
+			answer = append(answer, g.ID)
+		}
 		t.Logf("game %d possible: %v", g.ID, g.IsPossible(12, 13, 14))
 	}
+	assert.Equal(t, []int{1, 2, 5}, answer, "possible games not equal")
+}
+
+func TestGameParsingMinimum(t *testing.T) {
+	var games []game
+
+	scanner := bufio.NewScanner(strings.NewReader(exampleInput))
+	for scanner.Scan() {
+		var g game
+		err := g.UnmarshalText(scanner.Bytes())
+		assert.Nil(t, err)
+		games = append(games, g)
+	}
+	power := powerOfMinimumSets(games)
+	assert.Equal(t, 2286, power)
 }
