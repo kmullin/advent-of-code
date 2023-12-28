@@ -21,11 +21,21 @@ var (
 // game implements TextUnmarshaler
 type game struct {
 	ID   int
-	Sets []Set
+	Sets []cubeSet
 }
 
-func (g *game) AddSet(set Set) {
+func (g *game) AddSet(set cubeSet) {
 	g.Sets = append(g.Sets, set)
+}
+
+// IsPossible determines if the game was possible with the given counts of cubes
+func (g *game) IsPossible(red, green, blue int) bool {
+	for _, s := range g.Sets {
+		if s.Red > red || s.Green > green || s.Blue > blue {
+			return false
+		}
+	}
+	return true
 }
 
 func (g *game) UnmarshalText(text []byte) error {
@@ -36,19 +46,18 @@ func (g *game) UnmarshalText(text []byte) error {
 	}
 
 	// we get game ID from the first digit of the match
-	n, err := strconv.Atoi(fmt.Sprintf("%s", match[1]))
+	n, err := strconv.Atoi(string(match[1]))
 	if err != nil {
 		return err
 	}
 	g.ID = n
 
-	var set Set
+	var set cubeSet
 	// parse the rest of the line
 	for _, match := range cubeRe.FindAllSubmatch(match[2], -1) {
 		if len(match) != 4 {
 			return errors.New("regex does not match 4 captures")
 		}
-		fmt.Printf("%q\n", match)
 		color := string(match[2])
 		count, err := strconv.Atoi(string(match[1]))
 		if err != nil {
@@ -69,17 +78,17 @@ func (g *game) UnmarshalText(text []byte) error {
 		switch string(match[3]) {
 		case ";", "":
 			// zero out our set once we reach the end
-			fmt.Printf("set: %+v\n", set)
 			g.AddSet(set)
-			set = Set{}
+			set = cubeSet{}
 		}
 	}
 
 	return nil
 }
 
-type Set struct {
-	Green, Red, Blue int // set holds counts for each 'cube'
+// cubeSet holds counts for each cube in the set
+type cubeSet struct {
+	Green, Red, Blue int
 }
 
 func main() {
@@ -97,12 +106,19 @@ func main() {
 			os.Exit(1)
 		}
 		games = append(games, g)
-		break
 	}
 
-	fmt.Printf("%v\n", games)
 	fmt.Printf("found %d games\n", len(games))
+
+	// games possible
+	fmt.Printf("sum of games that were possible: %d\n", gamesPossible(games))
+}
+
+func gamesPossible(games []game) (sum int) {
 	for _, g := range games {
-		fmt.Printf("%+v\n", g)
+		if g.IsPossible(12, 13, 14) {
+			sum += g.ID
+		}
 	}
+	return
 }
