@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"flag"
 	"fmt"
 	"regexp"
+	"strconv"
 
 	"github.com/kmullin/advent-of-code/2023/common"
 )
@@ -14,56 +14,80 @@ var digitRe = regexp.MustCompile(`\d+`)
 
 // schematic represents the input puzzle
 type schematic struct {
-	// the raw data
-	rows [][]byte
-
-	SymbolCoords []coord // coordinates of where all symbols are
-	NumberCoords []coord // coordinates of where all the numbers are
+	rows      [][]byte        // the raw data
+	symbolMap map[coord][]int // map of symbol coordinates to a slice of numbers found around it
 }
 
+// coord is a simple coordinate tuple
 type coord struct {
 	X, Y int
 }
 
 // UnmarshalText implements the encoding.TextUnmarshaler interface
 func (s *schematic) UnmarshalText(text []byte) error {
-	scanner := bufio.NewScanner(bytes.NewReader(text))
-	line := 0
-	for scanner.Scan() {
-		// for each row, we walk byte by byte to find anything that is not a number or a period
-		row := scanner.Bytes()
-		// we save the row as is for later
-		s.rows = append(s.rows, row)
+	s.symbolMap = make(map[coord][]int)
+	s.rows = bytes.Split(text, []byte("\n"))
+	s.findSymbols()
+	s.findEdges()
+
+	return nil
+}
+
+func (s *schematic) findSymbols() {
+	// for each row, we walk byte by byte to find anything that is not a number or a period
+	for line, row := range s.rows {
 		for c, b := range row {
 			// if 0-9 or .
 			if (b >= 48 && b <= 57) || b == 46 {
 				continue
 			}
-			s.SymbolCoords = append(s.SymbolCoords, coord{line, c})
+			s.symbolMap[coord{line, c}] = make([]int, 0)
 		}
-
-		// now grab edges of all the numbers
-		for _, match := range digitRe.FindAllIndex(row, -1) {
-			c := coord{line, match[0]}
-			s.NumberCoords = append(s.NumberCoords, c)
-			fmt.Printf("%v\n", c)
-		}
-
-		line++
 	}
-
-	return nil
 }
 
-func (s *schematic) GetAllPartNumbers() (partNums []int) {
-	//for _, row := range s.rows {
-	//}
-	return
+func (s *schematic) findEdges() {
+	// now grab edges of all the numbers
+	for line, row := range s.rows {
+		for _, match := range digitRe.FindAllIndex(row, -1) {
+			var edges []coord
+			// generate all surrounding coordinates from the matched number
+			for r := line - 1; r <= line+1; r++ {
+				for c := match[0] - 1; c < match[1]+1; c++ {
+					edges = append(edges, coord{r, c})
+				}
+			}
+
+			// now check each edge to see if it is also a location of a symbol
+			for _, edge := range edges {
+				for symbol := range s.symbolMap {
+					if edge == symbol {
+						// XXX: we already matched a digit regex so we shouldnt need to check err here
+						n, _ := strconv.Atoi(string(row[match[0]:match[1]]))
+						s.symbolMap[symbol] = append(s.symbolMap[symbol], n)
+					}
+				}
+			}
+		}
+	}
 }
 
 func (s *schematic) SumOfPartNumbers() (sum int) {
-	for _, n := range s.GetAllPartNumbers() {
-		sum += n
+	for _, nums := range s.symbolMap {
+		for _, n := range nums {
+			sum += n
+		}
+	}
+	return
+}
+
+func (s *schematic) GearRatios() (sum int) {
+	// find any symbol that has only 2 numbers near it
+	for _, nums := range s.symbolMap {
+		if len(nums) != 2 {
+			continue
+		}
+		sum += nums[0] * nums[1]
 	}
 	return
 }
@@ -76,4 +100,5 @@ func main() {
 	var s schematic
 	s.UnmarshalText(filename.Content)
 	fmt.Printf("sum of part numbers: %d\n", s.SumOfPartNumbers())
+	fmt.Printf("sum of gear ratios: %d\n", s.GearRatios())
 }
