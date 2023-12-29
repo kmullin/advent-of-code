@@ -35,26 +35,26 @@ func (s *schematic) UnmarshalText(text []byte) error {
 
 func (s *schematic) findSymbols() {
 	// for each row, we walk byte by byte to find anything that is not a number or a period
-	for line, row := range s.rows {
-		for c, b := range row {
+	for r, line := range s.rows {
+		for c, b := range line {
 			// if 0-9 or .
 			if (b >= 48 && b <= 57) || b == 46 {
 				continue
 			}
-			s.symbolMap[coord{line, c}] = make([]int, 0)
+			s.symbolMap[coord{r, c}] = make([]int, 0)
 		}
 	}
 }
 
 func (s *schematic) findEdges() {
 	// now grab edges of all the numbers
-	for line, row := range s.rows {
-		for _, match := range digitRe.FindAllIndex(row, -1) {
+	for r, line := range s.rows {
+		for _, match := range digitRe.FindAllIndex(line, -1) {
 			var edges []coord
 			// generate all surrounding coordinates from the matched number
-			for r := line - 1; r <= line+1; r++ {
-				for c := match[0] - 1; c < match[1]+1; c++ {
-					edges = append(edges, coord{r, c})
+			for row := r - 1; row <= r+1; row++ {
+				for col := match[0] - 1; col < match[1]+1; col++ {
+					edges = append(edges, coord{row, col})
 				}
 			}
 
@@ -63,7 +63,7 @@ func (s *schematic) findEdges() {
 				for symbol := range s.symbolMap {
 					if edge == symbol {
 						// XXX: we already matched a digit regex so we shouldnt need to check err here
-						n, _ := strconv.Atoi(string(row[match[0]:match[1]]))
+						n, _ := strconv.Atoi(string(line[match[0]:match[1]]))
 						s.symbolMap[symbol] = append(s.symbolMap[symbol], n)
 					}
 				}
