@@ -38,3 +38,12 @@ func TestCardReader(t *testing.T) {
 		})
 	}
 }
+
+func TestCardReaderRevised(t *testing.T) {
+	var cr cardReader
+	err := cr.UnmarshalText([]byte(exampleInput))
+	assert.Nil(t, err)
+
+	// slice stars with 0, cards start with 1
+	assert.Equal(t, 30, cr.RevisedValue(), "total scorecards has incorrect value")
+}
