@@ -1,32 +1,28 @@
 package common
 
 import (
+	"encoding"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 )
 
-// FileFlag implements flag.Value
-type FileFlag struct {
-	filename string
-	Content  []byte
+var inputFilename string
+
+func init() {
+	flag.StringVar(&inputFilename, "input", "input", "input filename")
 }
 
-func (f *FileFlag) String() string {
-	return f.filename
-}
-
-func (f *FileFlag) Set(filename string) error {
-	if filename == "" {
-		return errors.New("unable to set a blank filename")
+func FileFlag(p encoding.TextUnmarshaler) error {
+	if inputFilename == "" {
+		return errors.New("blank filename")
 	}
-	f.filename = filename
 
-	b, err := os.ReadFile(filename)
+	b, err := os.ReadFile(inputFilename)
 	if err != nil {
 		return fmt.Errorf("unable to read: %w", err)
 	}
 
-	f.Content = b
-	return nil
+	return p.UnmarshalText(b)
 }
