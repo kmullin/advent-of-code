@@ -197,12 +197,10 @@ func isOfAKind(m map[rune]int, n int) bool {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "")
 	flag.Parse()
 
 	var h Hands
-	err := h.UnmarshalText(filename.Content)
+	err := common.FileFlag(&h)
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		os.Exit(1)
