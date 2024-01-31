@@ -19,8 +19,7 @@ func TestCalibrationValue(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.input, func(t *testing.T) {
-			n, err := GetDigit(tc.input)
-			assert.Nil(t, err)
+			n := getDigit(tc.input)
 			assert.Equal(t, tc.number, n)
 		})
 	}
@@ -42,8 +41,7 @@ func TestCalibrationValue2(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.input, func(t *testing.T) {
-			n, err := GetDigitWords(tc.input)
-			assert.Nil(t, err)
+			n := getDigitWords(tc.input)
 			assert.Equal(t, tc.number, n)
 		})
 	}

@@ -2,10 +2,8 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -26,7 +24,32 @@ var intMap = map[int]string{
 	9: "nine",
 }
 
-func GetDigitWords(input string) (int, error) {
+type Trebuchet struct {
+	input string
+}
+
+func (t *Trebuchet) UnmarshalText(text []byte) error {
+	t.input = string(text)
+	return nil
+}
+
+func (t Trebuchet) forEachLine(f func(string) int) (answer int) {
+	scanner := bufio.NewScanner(strings.NewReader(t.input))
+	for scanner.Scan() {
+		answer += f(scanner.Text())
+	}
+	return
+}
+
+func (t Trebuchet) GetDigitWords() int {
+	return t.forEachLine(getDigitWords)
+}
+
+func (t Trebuchet) GetDigit() int {
+	return t.forEachLine(getDigit)
+}
+
+func getDigitWords(input string) int {
 	first := -1
 	last := -1
 	digits := make([]int, 2)
@@ -46,10 +69,11 @@ func GetDigitWords(input string) (int, error) {
 		}
 	}
 
-	return strconv.Atoi(fmt.Sprintf("%d%d", digits[0], digits[1]))
+	n, _ := strconv.Atoi(fmt.Sprintf("%d%d", digits[0], digits[1]))
+	return n
 }
 
-func GetDigit(input string) (int, error) {
+func getDigit(input string) int {
 	var digits []rune
 	var lastDigit rune
 	for i, a := range input {
@@ -69,34 +93,21 @@ func GetDigit(input string) (int, error) {
 	if len(digits) == 2 && digits[1] == 0 {
 		digits[1] = digits[0]
 	}
-	return strconv.Atoi(string(digits))
+
+	n, _ := strconv.Atoi(string(digits))
+	return n
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "what")
 	flag.Parse()
 
-	answer, err := Scan(bytes.NewReader(filename.Content), GetDigitWords)
+	var t Trebuchet
+	err := common.FileFlag(&t)
 	if err != nil {
 		fmt.Printf("err encountered: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("the answer is: %v\n", answer)
-}
-
-func Scan(r io.Reader, f func(string) (int, error)) (int, error) {
-	var answer int
-
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		n, err := f(scanner.Text())
-		if err != nil {
-			return -1, err
-		}
-		answer += n
-	}
-
-	return answer, nil
+	fmt.Printf("the answer is: %v\n", t.GetDigit())
+	fmt.Printf("the answer is (Part 2): %v\n", t.GetDigitWords())
 }
