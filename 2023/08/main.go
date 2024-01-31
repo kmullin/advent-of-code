@@ -134,12 +134,10 @@ func lcm(a, b int, integers ...int) int {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "")
 	flag.Parse()
 
 	var gm GhostMap
-	err := gm.UnmarshalText(filename.Content)
+	err := common.FileFlag(&gm)
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		os.Exit(1)
