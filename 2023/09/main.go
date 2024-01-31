@@ -85,12 +85,10 @@ func findSteps(nums []int) (steps []int) {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "")
 	flag.Parse()
 
 	var o OASIS
-	err := o.UnmarshalText(filename.Content)
+	err := common.FileFlag(&o)
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		os.Exit(1)
