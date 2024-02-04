@@ -22,7 +22,7 @@ type coord struct {
 
 func (t *Tiles) UnmarshalText(text []byte) error {
 	if len(text) == 0 {
-		return errors.New("input is 0 length")
+		return common.InputEmptyErr
 	}
 	for _, b := range bytes.Split(text, []byte("\n")) {
 		if len(b) == 0 {
