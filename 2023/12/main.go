@@ -8,13 +8,6 @@ import (
 	"github.com/kmullin/advent-of-code/2023/common"
 )
 
-// various spring representations
-const (
-	operationalSpring = 0x2e // '.'
-	damagedSpring     = 0x23 // '#'
-	unknownSpring     = 0x3f // '?'
-)
-
 func main() {
 	var filename common.FileFlag
 	flag.Var(&filename, "input-file", "")

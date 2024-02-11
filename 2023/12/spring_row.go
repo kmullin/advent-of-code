@@ -1,124 +1,137 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"slices"
 	"strconv"
+	"strings"
 )
 
+// various spring representations
+const (
+	operationalSpring = "."
+	damagedSpring     = "#"
+	unknownSpring     = "?"
+)
+
+// unfold is the number of times to unfold the records for Part 2
+const unfold = 5
+
 type springRow struct {
-	data           []byte
-	damagedSprings []int         // the size of each contiguous group of damaged springs is listed in the order those groups appear in the row
-	groups         []springGroup // groupings of consecutive springs
+	data           string
+	damagedSprings []int // the size of each contiguous group of damaged springs is listed in the order those groups appear in the row
 }
 
 func newSpringRow(b []byte) (sr springRow, err error) {
-	bb := bytes.Fields(b)
-	if len(bb) != 2 {
+	ss := strings.Fields(string(b))
+	if len(ss) != 2 {
 		return sr, errors.New("fields on row != 2")
 	}
-	sr.data = bb[0]
-	sr.damagedSprings, err = convertCsvInts(bb[1])
-	// here after because we best effort printing in String() err is not fatal
-	sr.groups = sr.findGroupings()
+	sr.data = ss[0]
+	sr.damagedSprings, err = convertCsvInts(ss[1])
 	return sr, err
 }
 
-type tup struct {
-	i int
-	b []byte
-}
-
-func (t tup) String() string {
-	return fmt.Sprintf("(%v, '%s')", t.i, t.b)
-}
-
 func (sr springRow) TotalArrangements() (count int) {
-	var buf bytes.Buffer
-	stack := []tup{{0, []byte{}}}
+	return sr.recurse(0, "")
+}
+
+func (sr springRow) nonRecurse() (count int) {
+	stack := []tup{{0, ""}}
 	for len(stack) > 0 {
-		s := stack[len(stack)-1] // pop
+		t := stack[len(stack)-1] // pop
 		stack = stack[:len(stack)-1]
 
-		if s.i == len(sr.data) {
-			if isValid(s.b, sr.damagedSprings) {
+		if t.i == len(sr.data) {
+			if sr.isValidCombo(t.s) {
 				count++
 			}
 			continue
 		}
 
-		buf.Reset()           // fresh start
-		_, _ = buf.Write(s.b) // write our current bytes to buffer
-		if b := sr.data[s.i]; b != unknownSpring {
-			_ = buf.WriteByte(b)
-			stack = append(stack, tup{s.i + 1, buf.Bytes()})
+		if s := string(sr.data[t.i]); s != unknownSpring {
+			stack = append(stack, tup{t.i + 1, t.s + s})
 		} else {
-			b1, b2 := bytes.Clone(buf.Bytes()), bytes.Clone(buf.Bytes())
 			// we need to check for possible # and .
-			b1 = append(b1, damagedSpring)
-			b2 = append(b2, operationalSpring)
-			stack = append(stack, tup{s.i + 1, b1}, tup{s.i + 1, b2})
+			t1 := tup{t.i + 1, t.s + damagedSpring}
+			t2 := tup{t.i + 1, t.s + operationalSpring}
+			stack = append(stack, t1, t2)
 		}
 	}
 
 	return
 }
 
-func isValid(b []byte, groups []int) bool {
+func (sr springRow) recurse(i int, s string) int {
+	var n int
+	// fmt.Printf("(%v, %v)\t%v\n", i, s, sr.damagedSprings)
+
+	if i == len(sr.data) {
+		if sr.isValidCombo(s) {
+			n = 1
+		} else {
+			n = 0
+		}
+	} else {
+		if ss := string(sr.data[i]); ss != unknownSpring {
+			n = sr.recurse(i+1, s+ss)
+		} else {
+			n = sr.recurse(i+1, s+damagedSpring) + sr.recurse(i+1, s+operationalSpring)
+		}
+	}
+
+	return n
+}
+
+func (sr springRow) isValidCombo(s string) bool {
 	var i []int
-	for _, bb := range bytes.Split(b, []byte{operationalSpring}) {
-		if len(bb) == 0 {
+	for _, ss := range strings.Split(s, operationalSpring) {
+		if len(ss) == 0 {
 			continue
 		}
-		i = append(i, len(bb))
+		i = append(i, len(ss))
 	}
-	return slices.Compare(i, groups) == 0
+	return slices.Compare(i, sr.damagedSprings) == 0
 }
 
-func (sr springRow) filterGroups(f func(b byte) bool) (groups []springGroup) {
-	for _, g := range sr.groups {
-		if f(g.springType) {
-			groups = append(groups, g)
+func (sr springRow) Unfold(expand int) springRow {
+	l := len(sr.damagedSprings)
+
+	var b strings.Builder
+	for i := 1; i <= expand; i++ {
+		fmt.Fprint(&b, sr.data)
+		if i < expand {
+			// if we're not the last iteration
+			fmt.Fprint(&b, unknownSpring)
+			sr.damagedSprings = append(sr.damagedSprings, sr.damagedSprings[:l]...)
 		}
 	}
-	return
-}
-
-func (sr springRow) findGroupings() (groups []springGroup) {
-	// so we cant run more than once
-	if len(sr.groups) != 0 {
-		return
-	}
-
-	sg := newSpringGroup()
-	for i, b := range sr.data {
-		if sg.start == -1 {
-			sg.start = i
-			sg.springType = b
-		}
-		sg.end = i
-
-		// lookahead to see if we need to save our grouping
-		if len(sr.data)-1 == i || sg.springType != sr.data[i+1] {
-			groups = append(groups, sg)
-			sg = newSpringGroup()
-		}
-	}
-	return
+	sr.data = b.String()
+	return sr
 }
 
 // String implements the Stringer interface and allows us to pretty print the row
 func (sr springRow) String() string {
-	return fmt.Sprintf("%v %v (%v) %v", string(sr.data), sr.groups, len(sr.groups), sr.damagedSprings)
+	return fmt.Sprint(sr.data, " ", sr.damagedSprings)
+}
+
+// tup is a simple tuple that we can use to keep track of index and string to check
+// during our iterations
+type tup struct {
+	i int
+	s string
+}
+
+func (t tup) String() string {
+	return fmt.Sprintf("(%v, %q)", t.i, t.s)
 }
 
 // convertCsvInts converts a byte slice of comma separated integers and returns an int slice
-func convertCsvInts(b []byte) (i []int, err error) {
+func convertCsvInts(s string) (i []int, err error) {
 	var n int
-	for _, bb := range bytes.Split(b, []byte(",")) {
-		n, err = strconv.Atoi(string(bb))
+	for _, ss := range strings.Split(s, ",") {
+		n, err = strconv.Atoi(ss)
 		if err != nil {
 			return
 		}
