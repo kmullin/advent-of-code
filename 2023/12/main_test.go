@@ -23,7 +23,7 @@ func readInput(tb testing.TB, input []byte) (r ConditionRecord) {
 	return
 }
 
-func TestExample(t *testing.T) {
+func TestExamplePart1(t *testing.T) {
 	r := readInput(t, exampleInput)
 
 	// individual cases for each row
@@ -38,5 +38,23 @@ func TestExample(t *testing.T) {
 
 	t.Run("total", func(t *testing.T) {
 		assert.Equal(t, 21, r.TotalArrangements())
+	})
+}
+
+func TestExamplePart2(t *testing.T) {
+	r := readInput(t, exampleInput)
+
+	// individual cases for each row
+	cases := []int{
+		1, 16384, 1, 16, 2500, 506250,
+	}
+	for n, expected := range cases {
+		t.Run(fmt.Sprintf("row%v", n), func(t *testing.T) {
+			assert.Equal(t, expected, r.r[n].TotalArrangements())
+		})
+	}
+
+	t.Run("total", func(t *testing.T) {
+		assert.Equal(t, 525152, r.TotalArrangements())
 	})
 }
