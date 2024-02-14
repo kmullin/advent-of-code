@@ -21,6 +21,7 @@ const unfold = 5
 type springRow struct {
 	data           string
 	damagedSprings []int // the size of each contiguous group of damaged springs is listed in the order those groups appear in the row
+	unfold         bool  // to unfold or not
 }
 
 func newSpringRow(b []byte) (sr springRow, err error) {
@@ -34,9 +35,11 @@ func newSpringRow(b []byte) (sr springRow, err error) {
 }
 
 func (sr springRow) TotalArrangements() (count int) {
-	return sr.recurse(0, "")
+	return recurse(sr.data, sr.damagedSprings)
 }
 
+// nonRecurse was the initial implementation using a stack and a new tuple type
+// it also cant easily be cached and its working off indexes which is useless for caching
 func (sr springRow) nonRecurse() (count int) {
 	stack := []tup{{0, ""}}
 	for len(stack) > 0 {
@@ -63,6 +66,8 @@ func (sr springRow) nonRecurse() (count int) {
 	return
 }
 
+// recurse was the second attempt of solving the problem, it cant easily be cached
+// since its working on internal state of sr.data and sr.damagedSprings
 func (sr springRow) recurse(i int, s string) (n int) {
 	// fmt.Printf("(%v, %v)\t%v\n", i, s, sr.damagedSprings)
 	if i == len(sr.data) {
@@ -80,6 +85,72 @@ func (sr springRow) recurse(i int, s string) (n int) {
 	}
 
 	return n
+}
+
+// recurse is the third attempt at making a more cacheable implementation
+// this one is passed the full string data, and works by walking left to right thru the characters while testing against the groups, only passing the remaining groups left as groups
+// this should be more cacheable so we can solve part 2
+func recurse(record string, groups []int) int {
+	// check the cache here for a hit return instead of executing function
+	// fmt.Printf("%v\t%v\n", s, groups)
+	if len(groups) == 0 {
+		// no more groups lets check record
+		if !strings.Contains(record, damagedSpring) {
+			return 1
+		} else {
+			return 0
+		}
+	}
+
+	if len(record) == 0 {
+		return 0
+	}
+
+	// start from the left
+	c := string(record[0])
+	g := groups[0]
+
+	pound := func() int {
+		var thisGroup string
+		if len(record) < g {
+			thisGroup = strings.Replace(record[:len(record)], unknownSpring, damagedSpring, -1)
+		} else {
+			thisGroup = strings.Replace(record[:g], unknownSpring, damagedSpring, -1)
+		}
+
+		if thisGroup != strings.Repeat(damagedSpring, g) {
+			return 0
+		}
+
+		if len(record) == g {
+			if len(groups) == 1 {
+				return 1
+			}
+			return 0
+		}
+
+		if strings.Contains(string(record[g]), operationalSpring) ||
+			strings.Contains(string(record[g]), unknownSpring) {
+			return recurse(record[g+1:], groups[1:])
+		}
+
+		return 0
+	}
+
+	switch c {
+	case damagedSpring: // #
+		return pound()
+	case unknownSpring: // ?
+		return recurse(record[1:], groups) + pound()
+	case operationalSpring: // .
+		return recurse(record[1:], groups)
+	default:
+		panic("unknown spring type")
+	}
+
+	return 0
+	// here we could cache the result, but what to cache?
+	// cant cache tuples, maybe pointer?
 }
 
 func (sr springRow) isValidCombo(s string) bool {
