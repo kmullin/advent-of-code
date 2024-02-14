@@ -50,6 +50,7 @@ func TestExamplePart2(t *testing.T) {
 	}
 	for n, expected := range cases {
 		t.Run(fmt.Sprintf("row%v", n), func(t *testing.T) {
+			r.r[n].unfold = true // handle the unfolding of the spring rows
 			assert.Equal(t, expected, r.r[n].TotalArrangements())
 		})
 	}
