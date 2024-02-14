@@ -93,13 +93,14 @@ func (sr springRow) recurse(i int, s string) (n int) {
 func recurse(record string, groups []int) int {
 	// check the cache here for a hit return instead of executing function
 	// fmt.Printf("%v\t%v\n", s, groups)
+
 	if len(groups) == 0 {
-		// no more groups lets check record
+		// we dont have any more groups that are desired
 		if !strings.Contains(record, damagedSpring) {
 			return 1
-		} else {
-			return 0
 		}
+		// we have damaged springs still, but no groups
+		return 0
 	}
 
 	if len(record) == 0 {
@@ -113,9 +114,9 @@ func recurse(record string, groups []int) int {
 	pound := func() int {
 		var thisGroup string
 		if len(record) < g {
-			thisGroup = strings.Replace(record[:len(record)], unknownSpring, damagedSpring, -1)
+			thisGroup = replaceUnknowns(record[:len(record)])
 		} else {
-			thisGroup = strings.Replace(record[:g], unknownSpring, damagedSpring, -1)
+			thisGroup = replaceUnknowns(record[:g])
 		}
 
 		if thisGroup != strings.Repeat(damagedSpring, g) {
@@ -194,6 +195,10 @@ type tup struct {
 
 func (t tup) String() string {
 	return fmt.Sprintf("(%v, %q)", t.i, t.s)
+}
+
+func replaceUnknowns(s string) string {
+	return strings.Replace(s, unknownSpring, damagedSpring, -1)
 }
 
 // convertCsvInts converts a byte slice of comma separated integers and returns an int slice
