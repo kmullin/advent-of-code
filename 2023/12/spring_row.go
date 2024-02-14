@@ -92,66 +92,79 @@ func (sr springRow) recurse(i int, s string) (n int) {
 // this should be more cacheable so we can solve part 2
 func recurse(record string, groups []int) int {
 	// check the cache here for a hit return instead of executing function
-	// fmt.Printf("%v\t%v\n", s, groups)
+	f := func(record string, groups []int) int {
+		// fmt.Printf("%v\t%v\n", record, groups)
 
-	if len(groups) == 0 {
 		// we dont have any more groups that are desired
-		if !strings.Contains(record, damagedSpring) {
-			return 1
-		}
-		// we have damaged springs still, but no groups
-		return 0
-	}
-
-	if len(record) == 0 {
-		return 0
-	}
-
-	// start from the left
-	c := string(record[0])
-	g := groups[0]
-
-	pound := func() int {
-		var thisGroup string
-		if len(record) < g {
-			thisGroup = replaceUnknowns(record[:len(record)])
-		} else {
-			thisGroup = replaceUnknowns(record[:g])
-		}
-
-		if thisGroup != strings.Repeat(damagedSpring, g) {
-			return 0
-		}
-
-		if len(record) == g {
-			if len(groups) == 1 {
+		// but we have springs in our record
+		if len(groups) == 0 {
+			// this catches if our record is empty
+			if !strings.Contains(record, damagedSpring) {
 				return 1
 			}
+			// we have damaged springs still, but no groups
 			return 0
 		}
 
-		if strings.Contains(string(record[g]), operationalSpring) ||
-			strings.Contains(string(record[g]), unknownSpring) {
-			return recurse(record[g+1:], groups[1:])
+		// no more springs, cannot proceed
+		if len(record) == 0 {
+			return 0
+		}
+
+		// grab our next work units
+		c := string(record[0])
+		g := groups[0]
+
+		// inline function that uses given record and groups
+		pound := func() int {
+			// if we have a damaged spring, then the first group
+			// should be able to be treated as a damaged spring
+			var thisGroup string
+			if len(record) < g {
+				thisGroup = replaceUnknowns(record[:len(record)])
+			} else {
+				thisGroup = replaceUnknowns(record[:g])
+			}
+
+			// do the test to see if thisGroup matches all damaged springs of
+			// the length of our group
+			if thisGroup != strings.Repeat(damagedSpring, g) {
+				return 0
+			}
+
+			// if our entire record is the length of our group
+			// then we're done
+			if len(record) == g {
+				if len(groups) == 1 {
+					return 1
+				}
+				return 0
+			}
+
+			// check the next characters can be separators
+			if strings.Contains(string(record[g]), operationalSpring) ||
+				strings.Contains(string(record[g]), unknownSpring) {
+				return recurse(record[g+1:], groups[1:])
+			}
+
+			return 0
+		}
+
+		switch c {
+		case damagedSpring: // #
+			return pound()
+		case unknownSpring: // ?
+			return recurse(record[1:], groups) + pound()
+		case operationalSpring: // .
+			return recurse(record[1:], groups)
+		default:
+			panic("unknown spring type")
 		}
 
 		return 0
-	}
+	}(record, groups)
 
-	switch c {
-	case damagedSpring: // #
-		return pound()
-	case unknownSpring: // ?
-		return recurse(record[1:], groups) + pound()
-	case operationalSpring: // .
-		return recurse(record[1:], groups)
-	default:
-		panic("unknown spring type")
-	}
-
-	return 0
-	// here we could cache the result, but what to cache?
-	// cant cache tuples, maybe pointer?
+	return f
 }
 
 func (sr springRow) isValidCombo(s string) bool {
