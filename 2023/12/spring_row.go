@@ -63,10 +63,8 @@ func (sr springRow) nonRecurse() (count int) {
 	return
 }
 
-func (sr springRow) recurse(i int, s string) int {
-	var n int
+func (sr springRow) recurse(i int, s string) (n int) {
 	// fmt.Printf("(%v, %v)\t%v\n", i, s, sr.damagedSprings)
-
 	if i == len(sr.data) {
 		if sr.isValidCombo(s) {
 			n = 1
