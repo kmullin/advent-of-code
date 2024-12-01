@@ -26,3 +26,13 @@ func TestExampleInput(t *testing.T) {
 	i := GetDistance(left, right)
 	assert.Equal(t, 11, i)
 }
+
+func TestSimilarityPartTwo(t *testing.T) {
+	r := strings.NewReader(exampleInput)
+	left, right, err := ReadInput(r)
+
+	require.NoError(t, err)
+
+	similarity := GetSimilarity(left, right)
+	assert.Equal(t, 31, similarity)
+}

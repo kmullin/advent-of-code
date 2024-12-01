@@ -56,6 +56,24 @@ func GetDistance(l, r []int) int {
 	return int(distance)
 }
 
+func count(n int, x []int) (count int) {
+	for i := range len(x) {
+		if x[i] == n {
+			count++
+		}
+	}
+	return
+}
+
+func GetSimilarity(l, r []int) (similarity int) {
+	for i := range len(l) {
+		// how many times does the left int appear in the right
+		similarity += l[i] * count(l[i], r)
+	}
+
+	return
+}
+
 func main() {
 	f, err := os.Open("input.txt")
 	if err != nil {
@@ -70,4 +88,7 @@ func main() {
 
 	distance := GetDistance(l, r)
 	fmt.Printf("Total Distance: %v\n", distance)
+
+	similarity := GetSimilarity(l, r)
+	fmt.Printf("Similarity: %v\n", similarity)
 }
