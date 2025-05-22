@@ -19,7 +19,6 @@ type Report struct {
 
 // IsSafe determines if the report is safe, returns 0 if there were no failed checks, otherwise >0 will be a count of how many failed safety checks there were.
 func (r *Report) IsSafe(part int) bool {
-	var beenForgiven bool
 	var isIncreasing bool
 
 	for i := range r.Levels {
@@ -40,15 +39,12 @@ func (r *Report) IsSafe(part int) bool {
 			part, cur, next, isIncreasing,
 		)
 
+		// we want to immediately return false if we're part 1
+		// otherwise we want to set a flag skipping the current failure to detect another failure
+
 		// two adjacent levels differ by at least one and at most three
 		if abs < 1 || abs > 3 {
 			if part == 1 {
-				return false
-			}
-
-			if !beenForgiven {
-				beenForgiven = true
-			} else {
 				return false
 			}
 
@@ -59,12 +55,6 @@ func (r *Report) IsSafe(part int) bool {
 		// immediately bail if its different
 		if (isIncreasing && diff > 0) || (!isIncreasing && diff < 0) {
 			if part == 1 {
-				return false
-			}
-
-			if !beenForgiven {
-				beenForgiven = true
-			} else {
 				return false
 			}
 
