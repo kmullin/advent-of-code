@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"strings"
 	"testing"
 
@@ -17,7 +18,15 @@ const exampleInput = `7 6 4 2 1
 `
 
 func TestSafeReportsExample(t *testing.T) {
+	log.SetFlags(0)
 	reports, err := ReadInput(strings.NewReader(exampleInput))
 	require.NoError(t, err)
-	assert.Equal(t, 2, reports.NumSafe())
+
+	t.Run("part 1", func(t *testing.T) {
+		assert.Equal(t, 2, reports.NumSafe(1))
+	})
+
+	t.Run("part 2", func(t *testing.T) {
+		assert.Equal(t, 4, reports.NumSafe(2))
+	})
 }

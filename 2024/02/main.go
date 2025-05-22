@@ -13,47 +13,63 @@ import (
 type Reports []Report
 
 // Report is a slice of ints, each int represents a Level
-type Report []int
+type Report struct {
+	Levels []int
+}
 
-// IsSafe determines if the report is safe
-func (r Report) IsSafe() bool {
+// Safe determines if the report is safe, returns 0 if there were no failed checks, otherwise >0 will be a count of how many failed safety checks there were.
+func (r *Report) Safe() int {
+	var incidentCount int
 	var isIncreasing bool
 
-	for i, _ := range r {
-		if i == len(r)-1 {
+	for i, _ := range r.Levels {
+		if i == len(r.Levels)-1 {
 			continue
 		}
 
-		cur, next := float64(r[i]), float64(r[i+1])
+		cur, next := float64(r.Levels[i]), float64(r.Levels[i+1])
 		diff := cur - next
 		abs := math.Abs(diff)
-
-		// two adjacent levels differ by at least one and at most three
-		if abs < 1 || abs > 3 {
-			return false
-		}
 
 		// set first pass for increasing
 		if i == 0 {
 			isIncreasing = diff < 0
+		}
+
+		log.Printf("cur: %v, next: %v,increasing: %v", cur, next, isIncreasing)
+
+		// two adjacent levels differ by at least one and at most three
+		if abs < 1 || abs > 3 {
+			log.Printf("inc abs: %v", abs)
+			incidentCount++
 			continue
 		}
 
 		// all increasing or all decreasing
 		// immediately bail if its different
 		if (isIncreasing && diff > 0) || (!isIncreasing && diff < 0) {
-			return false
+			log.Printf("inc diff: %v", diff)
+			incidentCount++
+			continue
 		}
 	}
 
-	return true
+	return incidentCount
 }
 
-func (r Reports) NumSafe() (count int) {
+func (r Reports) NumSafe(part int) (count int) {
 	for _, report := range r {
-		if report.IsSafe() {
+		safe := "unsafe"
+
+		n := report.Safe()
+		switch {
+		case n == 0:
+			safe = "safe"
 			count++
+		case part == 2 && n > 1:
+			log.Printf("incidentCount: %v", n)
 		}
+		log.Printf("%v: %v (%v)", report, safe, n)
 	}
 
 	return
@@ -73,7 +89,7 @@ func ReadInput(r io.Reader) (Reports, error) {
 				return nil, err
 			}
 
-			report = append(report, i)
+			report.Levels = append(report.Levels, i)
 		}
 		reports = append(reports, report)
 	}
@@ -99,5 +115,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Printf("Number of safe reports: %v", reports.NumSafe())
+	log.Printf("Number of safe reports: %v", reports.NumSafe(1))
+	log.Printf("Number of safe reports (Part 2): %v", reports.NumSafe(2))
 }
