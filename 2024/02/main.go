@@ -36,7 +36,7 @@ func (r *Report) Safe() int {
 			isIncreasing = diff < 0
 		}
 
-		log.Printf("cur: %v, next: %v,increasing: %v", cur, next, isIncreasing)
+		log.Printf("cur: %v, next: %v, increasing: %v", cur, next, isIncreasing)
 
 		// two adjacent levels differ by at least one and at most three
 		if abs < 1 || abs > 3 {
