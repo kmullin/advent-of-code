@@ -17,8 +17,8 @@ type Report struct {
 	Levels []int
 }
 
-// Safe determines if the report is safe, returns 0 if there were no failed checks, otherwise >0 will be a count of how many failed safety checks there were.
-func (r *Report) Safe(part int) bool {
+// IsSafe determines if the report is safe, returns 0 if there were no failed checks, otherwise >0 will be a count of how many failed safety checks there were.
+func (r *Report) IsSafe(part int) bool {
 	var isIncreasing bool
 
 	for i := range r.Levels {
@@ -62,7 +62,7 @@ func (r *Report) Safe(part int) bool {
 
 func (r Reports) NumSafe(part int) (count int) {
 	for _, report := range r {
-		n := report.Safe(part)
+		n := report.IsSafe(part)
 		if n {
 			count++
 		}
