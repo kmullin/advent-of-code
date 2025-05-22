@@ -18,11 +18,11 @@ type Report struct {
 }
 
 // Safe determines if the report is safe, returns 0 if there were no failed checks, otherwise >0 will be a count of how many failed safety checks there were.
-func (r *Report) Safe() int {
+func (r *Report) Safe(part int) bool {
 	var incidentCount int
 	var isIncreasing bool
 
-	for i, _ := range r.Levels {
+	for i := range r.Levels {
 		if i == len(r.Levels)-1 {
 			continue
 		}
@@ -42,6 +42,9 @@ func (r *Report) Safe() int {
 		if abs < 1 || abs > 3 {
 			log.Printf("inc abs: %v", abs)
 			incidentCount++
+			if part == 1 {
+				return false
+			}
 			continue
 		}
 
@@ -50,26 +53,20 @@ func (r *Report) Safe() int {
 		if (isIncreasing && diff > 0) || (!isIncreasing && diff < 0) {
 			log.Printf("inc diff: %v", diff)
 			incidentCount++
+			if part == 1 {
+				return false
+			}
 			continue
 		}
 	}
 
-	return incidentCount
+	return true
 }
 
 func (r Reports) NumSafe(part int) (count int) {
 	for _, report := range r {
-		safe := "unsafe"
-
-		n := report.Safe()
-		switch {
-		case n == 0:
-			safe = "safe"
-			count++
-		case part == 2 && n > 1:
-			log.Printf("incidentCount: %v", n)
-		}
-		log.Printf("%v: %v (%v)", report, safe, n)
+		n := report.Safe(part)
+		log.Printf("%v: safe %v", report, n)
 	}
 
 	return
