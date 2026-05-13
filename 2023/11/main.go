@@ -2,12 +2,12 @@ package main
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
+	"log"
 	"math"
 	"os"
 
-	"github.com/kmullin/advent-of-code/2023/common"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 type Image struct {
@@ -22,7 +22,7 @@ type coord struct {
 
 func (i *Image) UnmarshalText(text []byte) error {
 	if len(text) == 0 {
-		return common.InputEmptyErr
+		return cli.ErrInputEmpty
 	}
 	for _, b := range bytes.Split(text, []byte("\n")) {
 		if len(b) == 0 {
@@ -138,12 +138,13 @@ func Abs(a int) int {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "")
-	flag.Parse()
+	ctx, err := cli.Setup(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var image Image
-	err := image.UnmarshalText(filename.Content)
+	err = image.UnmarshalText(ctx.Bytes())
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		os.Exit(1)

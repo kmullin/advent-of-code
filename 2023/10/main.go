@@ -3,13 +3,12 @@ package main
 import (
 	"bytes"
 	"errors"
-	"flag"
 	"fmt"
+	"log"
 	"math"
-	"os"
 	"slices"
 
-	"github.com/kmullin/advent-of-code/2023/common"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 // Tiles represents the tiles given as input
@@ -22,7 +21,7 @@ type coord struct {
 
 func (t *Tiles) UnmarshalText(text []byte) error {
 	if len(text) == 0 {
-		return common.InputEmptyErr
+		return cli.ErrInputEmpty
 	}
 	for _, b := range bytes.Split(text, []byte("\n")) {
 		if len(b) == 0 {
@@ -172,26 +171,26 @@ func shoelaceArea(coords []coord) (n int) {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "")
-	flag.Parse()
+	ctx, err := cli.Setup(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var tiles Tiles
-	err := tiles.UnmarshalText(filename.Content)
-	fatalErr(err)
+	err = tiles.UnmarshalText(ctx.Bytes())
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	steps, err := tiles.FurthestPoint()
-	fatalErr(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Furthest Point: %v\n", steps)
 
 	insideCount, err := tiles.InsideTiles()
-	fatalErr(err)
-	fmt.Printf("Inside Tiles: %v\n", insideCount)
-}
-
-func fatalErr(err error) {
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
+	fmt.Printf("Inside Tiles: %v\n", insideCount)
 }

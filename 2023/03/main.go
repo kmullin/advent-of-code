@@ -2,12 +2,12 @@ package main
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 
-	"github.com/kmullin/advent-of-code/2023/common"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 var digitRe = regexp.MustCompile(`\d+`)
@@ -93,12 +93,13 @@ func (s *schematic) GearRatios() (sum int) {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "what")
-	flag.Parse()
+	ctx, err := cli.Setup(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var s schematic
-	s.UnmarshalText(filename.Content)
+	s.UnmarshalText(ctx.Bytes())
 	fmt.Printf("sum of part numbers: %d\n", s.SumOfPartNumbers())
 	fmt.Printf("sum of gear ratios: %d\n", s.GearRatios())
 }

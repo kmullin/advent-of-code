@@ -2,15 +2,13 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
-	"flag"
 	"fmt"
-	"os"
+	"log"
 	"regexp"
 	"strconv"
 
-	"github.com/kmullin/advent-of-code/2023/common"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 var (
@@ -107,18 +105,18 @@ type cubeSet struct {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "what")
-	flag.Parse()
+	ctx, err := cli.Setup(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var games []game
-	scanner := bufio.NewScanner(bytes.NewReader(filename.Content))
+	scanner := bufio.NewScanner(ctx.Reader())
 	for scanner.Scan() {
 		var g game
 		err := g.UnmarshalText(scanner.Bytes())
 		if err != nil {
-			fmt.Printf("err: %v\n", err)
-			os.Exit(1)
+			log.Fatal(err)
 		}
 		games = append(games, g)
 	}

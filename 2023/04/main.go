@@ -3,15 +3,14 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"flag"
 	"fmt"
+	"log"
 	"math"
-	"os"
 	"regexp"
 	"slices"
 	"strconv"
 
-	"github.com/kmullin/advent-of-code/2023/common"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 var cardHeader = regexp.MustCompile(`^Card\s+(\d+): (.*)$`)
@@ -119,15 +118,15 @@ func convertDigits(b []byte) (ints []int) {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "")
-	flag.Parse()
+	ctx, err := cli.Setup(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var cr cardReader
-	err := cr.UnmarshalText(filename.Content)
+	err = cr.UnmarshalText(ctx.Bytes())
 	if err != nil {
-		fmt.Printf("err unmarshaling text: %v\n", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	fmt.Printf("total value of all cards: %v\n", cr.Value())

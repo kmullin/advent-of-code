@@ -4,14 +4,13 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	"flag"
 	"fmt"
-	"os"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
 
-	"github.com/kmullin/advent-of-code/2023/common"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 type Hands []Hand
@@ -197,15 +196,15 @@ func isOfAKind(m map[rune]int, n int) bool {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "")
-	flag.Parse()
+	ctx, err := cli.Setup(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var h Hands
-	err := h.UnmarshalText(filename.Content)
+	err = h.UnmarshalText(ctx.Bytes())
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 	fmt.Printf("Found %d hands\n", len(h))
 	for i := 1; i <= 2; i++ {

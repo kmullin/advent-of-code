@@ -2,13 +2,12 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
-	"os"
+	"log"
 	"regexp"
 	"strconv"
 
-	"github.com/kmullin/advent-of-code/2023/common"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 var digitRe = regexp.MustCompile(`(\d+)`)
@@ -92,23 +91,22 @@ func (r *Race) WinnableTimings() (possibleWins int) {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "")
-	flag.Parse()
+	ctx, err := cli.Setup(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var races Races
-	err := races.UnmarshalText(filename.Content)
+	err = races.UnmarshalText(ctx.Bytes())
 	if err != nil {
-		fmt.Printf("err unmarshaling text: %v\n", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 	fmt.Printf("Part 1: %+v\n", races.NumberOfWinnableRaces())
 
 	var race Race
-	err = race.UnmarshalText(filename.Content)
+	err = race.UnmarshalText(ctx.Bytes())
 	if err != nil {
-		fmt.Printf("err unmarshaling text: %v\n", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 	fmt.Printf("Part 2: %+v\n", race.WinnableTimings())
 }

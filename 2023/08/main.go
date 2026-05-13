@@ -4,13 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	"flag"
 	"fmt"
-	"os"
+	"log"
 	"regexp"
 	"strings"
 
-	"github.com/kmullin/advent-of-code/2023/common"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 var pathRe = regexp.MustCompile(`^([\w]{3}) = \(([\w]{3}), ([\w]{3})\)$`)
@@ -134,15 +133,15 @@ func lcm(a, b int, integers ...int) int {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "")
-	flag.Parse()
+	ctx, err := cli.Setup(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var gm GhostMap
-	err := gm.UnmarshalText(filename.Content)
+	err = gm.UnmarshalText(ctx.Bytes())
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	fmt.Printf("Number of steps: %v\n", gm.TotalSteps())

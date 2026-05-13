@@ -4,13 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	"flag"
 	"fmt"
-	"os"
+	"log"
 	"regexp"
 	"strconv"
 
-	"github.com/kmullin/advent-of-code/2023/common"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 var (
@@ -143,15 +142,15 @@ func (a *Almanac) LowestLocationP2() (lowest int) {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "")
-	flag.Parse()
+	ctx, err := cli.Setup(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var a Almanac
-	err := a.UnmarshalText(filename.Content)
+	err = a.UnmarshalText(ctx.Bytes())
 	if err != nil {
-		fmt.Printf("err unmarshaling text: %v\n", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	fmt.Printf("Lowest location number from seeds (Part1): %d\n", a.LowestLocation())

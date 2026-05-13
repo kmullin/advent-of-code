@@ -3,14 +3,13 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"flag"
 	"fmt"
-	"os"
+	"log"
 	"slices"
 	"strconv"
 	"strings"
 
-	"github.com/kmullin/advent-of-code/2023/common"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 // OASIS Oasis And Sand Instability Sensor
@@ -85,15 +84,15 @@ func findSteps(nums []int) (steps []int) {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "")
-	flag.Parse()
+	ctx, err := cli.Setup(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var o OASIS
-	err := o.UnmarshalText(filename.Content)
+	err = o.UnmarshalText(ctx.Bytes())
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	fmt.Printf("History (%v) Extrapolated: %v\n", len(o.History), o.Extrapolate(1))

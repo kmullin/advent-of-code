@@ -2,16 +2,14 @@ package main
 
 import (
 	"bufio"
-	"bytes"
-	"flag"
 	"fmt"
 	"io"
-	"os"
+	"log"
 	"strconv"
 	"strings"
 	"unicode"
 
-	"github.com/kmullin/advent-of-code/2023/common"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 var intMap = map[int]string{
@@ -73,14 +71,14 @@ func GetDigit(input string) (int, error) {
 }
 
 func main() {
-	var filename common.FileFlag
-	flag.Var(&filename, "input-file", "what")
-	flag.Parse()
-
-	answer, err := Scan(bytes.NewReader(filename.Content), GetDigitWords)
+	ctx, err := cli.Setup(nil)
 	if err != nil {
-		fmt.Printf("err encountered: %v\n", err)
-		os.Exit(1)
+		log.Fatal(err)
+	}
+
+	answer, err := Scan(ctx.Reader(), GetDigitWords)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	fmt.Printf("the answer is: %v\n", answer)
