@@ -7,7 +7,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/kmullin/advent-of-code/internal/util"
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 const (
@@ -109,7 +109,12 @@ func (d *Dial) RotateCount(r Rotation) int {
 }
 
 func main() {
-	rotations, err := ReadInput(util.InputReader())
+	ctx, err := cli.Setup(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rotations, err := ReadInput(ctx.Reader())
 	if err != nil {
 		log.Fatal(err)
 	}
