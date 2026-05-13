@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -22,7 +23,7 @@ type coord struct {
 
 func (i *Image) UnmarshalText(text []byte) error {
 	if len(text) == 0 {
-		return cli.ErrInputEmpty
+		return errors.New("zero length input")
 	}
 	for _, b := range bytes.Split(text, []byte("\n")) {
 		if len(b) == 0 {

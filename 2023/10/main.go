@@ -20,9 +20,6 @@ type coord struct {
 }
 
 func (t *Tiles) UnmarshalText(text []byte) error {
-	if len(text) == 0 {
-		return cli.ErrInputEmpty
-	}
 	for _, b := range bytes.Split(text, []byte("\n")) {
 		if len(b) == 0 {
 			continue

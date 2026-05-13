@@ -2,7 +2,6 @@ package cli
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -11,8 +10,6 @@ import (
 )
 
 const InputFilename = "input.txt"
-
-var ErrInputEmpty = errors.New("input is 0 length")
 
 type Context struct {
 	InputFilename string
