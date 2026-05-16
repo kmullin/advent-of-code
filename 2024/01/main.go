@@ -6,9 +6,10 @@ import (
 	"io"
 	"log"
 	"math"
-	"os"
 	"slices"
 	"strconv"
+
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 func ReadInput(r io.Reader) (left []int, right []int, err error) {
@@ -75,13 +76,12 @@ func GetSimilarity(l, r []int) (similarity int) {
 }
 
 func main() {
-	f, err := os.Open("input.txt")
+	ctx, err := cli.Setup(nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
 
-	l, r, err := ReadInput(f)
+	l, r, err := ReadInput(ctx.Reader())
 	if err != nil {
 		log.Fatal(err)
 	}

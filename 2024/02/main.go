@@ -5,9 +5,10 @@ import (
 	"io"
 	"log"
 	"math"
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
 type Reports []Report
@@ -86,15 +87,12 @@ func ReadInput(r io.Reader) (Reports, error) {
 }
 
 func main() {
-	log.SetFlags(0)
-
-	f, err := os.Open("input.txt")
+	ctx, err := cli.Setup(nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
 
-	reports, err := ReadInput(f)
+	reports, err := ReadInput(ctx.Reader())
 	if err != nil {
 		log.Fatal(err)
 	}
