@@ -1,13 +1,12 @@
 package main
 
 import (
-	"io"
 	"log"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
 )
 
-func ReadInput(r io.Reader) int {
+func ReadInput(b []byte) int {
 	return 0
 }
 
@@ -17,6 +16,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	thing := ReadInput(ctx.Reader())
+	thing := ReadInput(ctx.Bytes())
 	log.Print(thing)
 }
