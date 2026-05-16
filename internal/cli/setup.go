@@ -11,12 +11,14 @@ import (
 
 const InputFilename = "input.txt"
 
+// Context is our CLI context, which holds the read input file
 type Context struct {
 	InputFilename string
 
-	inputData []byte
+	data []byte
 }
 
+// Setup sets up the CLI with default flags, optionally configures extra flags on the flagset, returns Context
 func Setup(configure func(*pflag.FlagSet)) (*Context, error) {
 	fs := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 
@@ -37,14 +39,14 @@ func Setup(configure func(*pflag.FlagSet)) (*Context, error) {
 
 	return &Context{
 		InputFilename: *filename,
-		inputData:     b,
+		data:          bytes.TrimSpace(b),
 	}, nil
 }
 
 func (c *Context) Bytes() []byte {
-	return c.inputData
+	return c.data
 }
 
 func (c *Context) Reader() io.Reader {
-	return bytes.NewReader(c.inputData)
+	return bytes.NewReader(c.data)
 }
