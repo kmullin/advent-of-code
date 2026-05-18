@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/kmullin/advent-of-code/internal/common"
 )
 
 type Range struct {
@@ -18,15 +19,6 @@ func (r Range) String() string {
 	return fmt.Sprintf("%v-%v", r.Start, r.End)
 }
 
-func mustAtoi(a string) int {
-	i, err := strconv.Atoi(a)
-	if err != nil {
-		log.Fatalf("failed to convert %q: %v", a, err)
-	}
-
-	return i
-}
-
 func ReadInput(input string) []Range {
 	var ranges []Range
 	for r := range strings.SplitSeq(input, ",") {
@@ -35,7 +27,7 @@ func ReadInput(input string) []Range {
 			log.Fatalf("unexpected split length: %q", r)
 		}
 
-		start, end := mustAtoi(s[0]), mustAtoi(s[1])
+		start, end := common.MustAtoi(s[0]), common.MustAtoi(s[1])
 		ranges = append(ranges, Range{start, end})
 	}
 

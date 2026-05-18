@@ -18,6 +18,10 @@ type Context struct {
 	data []byte
 }
 
+func (ctx *Context) String() string {
+	return fmt.Sprintf("cli.Context{InputFilename: %q, size: %v}", ctx.InputFilename, len(ctx.data))
+}
+
 // Setup sets up the CLI with default flags, optionally configures extra flags on the flagset, returns Context
 func Setup(configure func(*pflag.FlagSet)) (*Context, error) {
 	fs := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
