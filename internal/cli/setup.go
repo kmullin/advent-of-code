@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"crypto/md5"
 	"fmt"
 	"io"
 	"os"
@@ -19,7 +20,7 @@ type Context struct {
 }
 
 func (ctx *Context) String() string {
-	return fmt.Sprintf("cli.Context{InputFilename: %q, size: %v}", ctx.InputFilename, len(ctx.data))
+	return fmt.Sprintf("filename: %q sum: %v size: %v", ctx.InputFilename, ctx.Sum(), len(ctx.data))
 }
 
 // Setup sets up the CLI with default flags, optionally configures extra flags on the flagset, returns Context
@@ -27,6 +28,7 @@ func Setup(configure func(*pflag.FlagSet)) (*Context, error) {
 	fs := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 
 	filename := fs.StringP("input-file", "f", InputFilename, "File with input data")
+	// _ = fs.StringP("session-cookie", "c", "", "Advent of Code session cookie to use to fetch input puzzles")
 
 	if configure != nil {
 		configure(fs)
@@ -43,8 +45,12 @@ func Setup(configure func(*pflag.FlagSet)) (*Context, error) {
 
 	return &Context{
 		InputFilename: *filename,
-		data:          bytes.TrimSpace(b),
+		data:          b,
 	}, nil
+}
+
+func (c *Context) Sum() string {
+	return fmt.Sprintf("%x", md5.Sum(c.data))
 }
 
 func (c *Context) Bytes() []byte {
