@@ -2,13 +2,13 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"bytes"
 	"io"
-	"log"
 	"strconv"
 	"strings"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 type seen struct {
@@ -45,7 +45,7 @@ func findMax(s string, nDigits int) int {
 	// then back to int?
 	n, err := strconv.Atoi(sb.String())
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("")
 	}
 
 	return n
@@ -60,7 +60,7 @@ func ReadInput(r io.Reader, nDigits int) int {
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("")
 	}
 
 	sum := 0
@@ -71,12 +71,16 @@ func ReadInput(r io.Reader, nDigits int) int {
 	return sum
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+func part1(b []byte) (string, error) {
+	return strconv.Itoa(ReadInput(bytes.NewReader(b), 2)), nil
+}
 
-	fmt.Printf("part1 joltages: %v\n", ReadInput(ctx.Reader(), 2))
-	fmt.Printf("part2 joltages: %v\n", ReadInput(ctx.Reader(), 12))
+func part2(b []byte) (string, error) {
+	return strconv.Itoa(ReadInput(bytes.NewReader(b), 12)), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2025, 3, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
 }

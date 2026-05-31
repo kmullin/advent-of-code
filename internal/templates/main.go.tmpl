@@ -1,0 +1,14 @@
+package main
+
+import (
+	"log"
+
+	"github.com/kmullin/advent-of-code/internal/cli"
+)
+
+func main() {
+	cmd := cli.NewCmd({{ .Year }}, {{ .Day }})
+	if err := cmd.Execute(); err != nil {
+		log.Fatal(err)
+	}
+}

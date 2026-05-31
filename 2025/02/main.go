@@ -1,13 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
 	"github.com/kmullin/advent-of-code/internal/common"
+	"github.com/rs/zerolog/log"
 )
 
 type Range struct {
@@ -24,7 +25,7 @@ func ReadInput(input string) []Range {
 	for r := range strings.SplitSeq(input, ",") {
 		s := strings.Split(r, "-")
 		if len(s) != 2 {
-			log.Fatalf("unexpected split length: %q", r)
+			log.Fatal().Msgf("unexpected split length: %q", r)
 		}
 
 		start, end := common.MustAtoi(s[0]), common.MustAtoi(s[1])
@@ -36,7 +37,8 @@ func ReadInput(input string) []Range {
 
 // works by simply comparing the first half to the second half
 // its naive and does not work for part 2
-func part1(i int) bool {
+// Part 1
+func repeatsTwice(i int) bool {
 	s := strconv.Itoa(i)
 	n := len(s)
 
@@ -46,14 +48,10 @@ func part1(i int) bool {
 	}
 
 	half := n / 2
-	if s[:half] == s[half:] {
-		return true
-	}
-
-	return false
+	return s[:half] == s[half:]
 }
 
-func part2(i int) bool {
+func repeatsTwiceOrMore(i int) bool {
 	s := strconv.Itoa(i)
 	n := len(s)
 	// Try every possible pattern length
@@ -94,14 +92,18 @@ func AddInvalidIDs(ranges []Range, f func(int) bool) int {
 	return count
 }
 
+func part1(b []byte) (string, error) {
+	ranges := ReadInput(string(bytes.TrimSpace(b)))
+	return strconv.Itoa(AddInvalidIDs(ranges, repeatsTwice)), nil
+}
+
+func part2(b []byte) (string, error) {
+	ranges := ReadInput(string(bytes.TrimSpace(b)))
+	return strconv.Itoa(AddInvalidIDs(ranges, repeatsTwiceOrMore)), nil
+}
+
 func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
+	if err := cli.NewCmd(2025, 2, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
 	}
-
-	ranges := ReadInput(string(ctx.Bytes()))
-
-	fmt.Printf("Part 1: %v\n", AddInvalidIDs(ranges, part1))
-	fmt.Printf("Part 2: %+v\n", AddInvalidIDs(ranges, part2))
 }

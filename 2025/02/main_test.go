@@ -11,11 +11,11 @@ const exampleText = "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1
 func TestExample(t *testing.T) {
 	ranges := ReadInput(exampleText)
 
-	assert.Equal(t, 1227775554, AddInvalidIDs(ranges, part1))
+	assert.Equal(t, 1227775554, AddInvalidIDs(ranges, repeatsTwice))
 }
 
 func TestExampleP2(t *testing.T) {
 	ranges := ReadInput(exampleText)
 
-	assert.Equal(t, 4174379265, AddInvalidIDs(ranges, part2))
+	assert.Equal(t, 4174379265, AddInvalidIDs(ranges, repeatsTwiceOrMore))
 }

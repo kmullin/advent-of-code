@@ -2,12 +2,13 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"strconv"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -45,7 +46,7 @@ func ReadInput(r io.Reader) ([]Rotation, error) {
 		case 'R':
 			r.Direction = Right
 		default:
-			log.Fatalf("unknown first byte %q", v)
+			log.Fatal().Msgf("unknown first byte %q", v)
 		}
 
 		n, err := strconv.Atoi(string(b[1:]))
@@ -61,6 +62,7 @@ func ReadInput(r io.Reader) ([]Rotation, error) {
 		return nil, err
 	}
 
+	log.Debug().Int("rotations", len(rotations)).Msg("")
 	return rotations, nil
 }
 
@@ -108,21 +110,14 @@ func (d *Dial) RotateCount(r Rotation) int {
 	return num_zeros
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
+func part1(b []byte) (string, error) {
+	rotations, err := ReadInput(bytes.NewReader(b))
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
-
-	rotations, err := ReadInput(ctx.Reader())
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%v total rotations\n", len(rotations))
 
 	d := NewDial(0, 99, 50)
 
-	// part 1
 	zero_pos := 0
 	for _, r := range rotations {
 		pos := d.Rotate(r)
@@ -130,15 +125,27 @@ func main() {
 			zero_pos += 1
 		}
 	}
-	fmt.Printf("number of zeros: %v\n", zero_pos)
 
-	// reset
-	d = NewDial(0, 99, 50)
+	return fmt.Sprintf("number of zeros: %v", zero_pos), nil
+}
 
-	// part 2
+func part2(b []byte) (string, error) {
+	rotations, err := ReadInput(bytes.NewReader(b))
+	if err != nil {
+		return "", err
+	}
+
+	d := NewDial(0, 99, 50)
 	num_zeros := 0
 	for _, r := range rotations {
 		num_zeros += d.RotateCount(r)
 	}
-	fmt.Printf("number of times hit zero: %v\n", num_zeros)
+
+	return fmt.Sprintf("number of times hit zero: %v", num_zeros), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2025, 1, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("failed to execute")
+	}
 }

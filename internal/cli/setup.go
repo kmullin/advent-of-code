@@ -28,7 +28,6 @@ func Setup(configure func(*pflag.FlagSet)) (*Context, error) {
 	fs := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 
 	filename := fs.StringP("input-file", "f", InputFilename, "File with input data")
-	// _ = fs.StringP("session-cookie", "c", "", "Advent of Code session cookie to use to fetch input puzzles")
 
 	if configure != nil {
 		configure(fs)
