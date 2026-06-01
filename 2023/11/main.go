@@ -3,12 +3,10 @@ package main
 import (
 	"bytes"
 	"errors"
-	"fmt"
-	"log"
 	"math"
-	"os"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 type Image struct {
@@ -138,25 +136,40 @@ func Abs(a int) int {
 	return int(math.Abs(float64(a)))
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func part1(b []byte) (any, error) {
 	var image Image
-	err = image.UnmarshalText(ctx.Bytes())
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		os.Exit(1)
+	if err := image.UnmarshalText(b); err != nil {
+		return nil, err
 	}
 
-	for part, expansion := range []int{2, 1_000_000} {
-		image.findGalaxies(expansion)
-		fmt.Printf("Part %v, Factor: %v\n", part+1, expansion)
-		fmt.Printf("Number of galaxies: %v\n", len(image.Galaxies))
-		fmt.Printf("Number of pairs: %v\n", pairCombinations(len(image.Galaxies)))
-		fmt.Printf("Shortest path sum: %v\n", image.ShortestPathSum())
-		fmt.Println("")
+	image.findGalaxies(2)
+	log.Debug().
+		Int("part", 1).
+		Int("expansion", 2).
+		Int("galaxies", len(image.Galaxies)).
+		Int("pairs", pairCombinations(len(image.Galaxies))).
+		Msg("")
+	return image.ShortestPathSum(), nil
+}
+
+func part2(b []byte) (any, error) {
+	var image Image
+	if err := image.UnmarshalText(b); err != nil {
+		return nil, err
+	}
+
+	image.findGalaxies(1_000_000)
+	log.Debug().
+		Int("part", 2).
+		Int("expansion", 1_000_000).
+		Int("galaxies", len(image.Galaxies)).
+		Int("pairs", pairCombinations(len(image.Galaxies))).
+		Msg("")
+	return image.ShortestPathSum(), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2023, 11, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
 	}
 }
