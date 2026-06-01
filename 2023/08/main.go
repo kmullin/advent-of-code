@@ -5,11 +5,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"log"
 	"regexp"
 	"strings"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 var pathRe = regexp.MustCompile(`^([\w]{3}) = \(([\w]{3}), ([\w]{3})\)$`)
@@ -132,18 +132,24 @@ func lcm(a, b int, integers ...int) int {
 	return result
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func part1(b []byte) (any, error) {
 	var gm GhostMap
-	err = gm.UnmarshalText(ctx.Bytes())
-	if err != nil {
-		log.Fatal(err)
+	if err := gm.UnmarshalText(b); err != nil {
+		return nil, err
 	}
+	return gm.TotalSteps(), nil
+}
 
-	fmt.Printf("Number of steps: %v\n", gm.TotalSteps())
-	fmt.Printf("Number of steps Part 2: %v\n", gm.TotalStepsPart2())
+func part2(b []byte) (any, error) {
+	var gm GhostMap
+	if err := gm.UnmarshalText(b); err != nil {
+		return nil, err
+	}
+	return gm.TotalStepsPart2(), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2023, 8, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
 }
