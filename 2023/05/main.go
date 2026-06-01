@@ -5,11 +5,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -127,6 +127,7 @@ func (a *Almanac) LowestLocation() (lowest int) {
 
 func (a *Almanac) LowestLocationP2() (lowest int) {
 	// treat seeds as a range of numbers
+	log.Debug().Msg("starting")
 	for i := 0; i < len(a.Seeds); i += 2 {
 		for seed := a.Seeds[i]; seed < a.Seeds[i]+a.Seeds[i+1]; seed++ {
 			num := seed
@@ -136,23 +137,38 @@ func (a *Almanac) LowestLocationP2() (lowest int) {
 			if num < lowest || lowest == 0 {
 				lowest = num
 			}
+			log.Debug().
+				Int("i", i).
+				Int("seed", seed).
+				Int("num", num).
+				Msg("")
 		}
 	}
 	return
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func part1(b []byte) (any, error) {
 	var a Almanac
-	err = a.UnmarshalText(ctx.Bytes())
-	if err != nil {
-		log.Fatal(err)
+	if err := a.UnmarshalText(bytes.TrimSpace(b)); err != nil {
+		return nil, err
 	}
 
-	fmt.Printf("Lowest location number from seeds (Part1): %d\n", a.LowestLocation())
-	fmt.Printf("Lowest location number from seeds (Part2): %d\n", a.LowestLocationP2())
+	return fmt.Sprintf("Lowest location number from seeds (Part1): %d",
+		a.LowestLocation()), nil
+}
+
+func part2(b []byte) (any, error) {
+	var a Almanac
+	if err := a.UnmarshalText(bytes.TrimSpace(b)); err != nil {
+		return nil, err
+	}
+
+	return fmt.Sprintf("Lowest location number from seeds (Part2): %d",
+		a.LowestLocationP2()), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2023, 5, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
 }
