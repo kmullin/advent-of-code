@@ -3,11 +3,11 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 var digitRe = regexp.MustCompile(`\d+`)
@@ -92,14 +92,26 @@ func (s *schematic) GearRatios() (sum int) {
 	return
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func part1(b []byte) (any, error) {
 	var s schematic
-	s.UnmarshalText(ctx.Bytes())
-	fmt.Printf("sum of part numbers: %d\n", s.SumOfPartNumbers())
-	fmt.Printf("sum of gear ratios: %d\n", s.GearRatios())
+	err := s.UnmarshalText(b)
+	if err != nil {
+		return nil, err
+	}
+	return fmt.Sprintf("sum of part numbers: %d", s.SumOfPartNumbers()), nil
+}
+
+func part2(b []byte) (any, error) {
+	var s schematic
+	err := s.UnmarshalText(b)
+	if err != nil {
+		return nil, err
+	}
+	return fmt.Sprintf("sum of gear ratios: %d", s.GearRatios()), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2023, 3, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
 }

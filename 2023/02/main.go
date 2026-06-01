@@ -2,13 +2,14 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -104,28 +105,42 @@ type cubeSet struct {
 	Green, Red, Blue int
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
+func part1(b []byte) (any, error) {
+	games, err := getGames(b)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
+	return fmt.Sprintf("sum of games that were possible: %d", gamesPossible(games)), nil
+}
 
+func part2(b []byte) (any, error) {
+	games, err := getGames(b)
+	if err != nil {
+		return nil, err
+	}
+	return fmt.Sprintf("sum of the power of sets: %d", powerOfMinimumSets(games)), nil
+}
+
+func getGames(b []byte) ([]game, error) {
 	var games []game
-	scanner := bufio.NewScanner(ctx.Reader())
+	scanner := bufio.NewScanner(bytes.NewReader(b))
 	for scanner.Scan() {
 		var g game
 		err := g.UnmarshalText(scanner.Bytes())
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 		games = append(games, g)
 	}
 
-	fmt.Printf("found %d games\n", len(games))
+	log.Debug().Msgf("found %d games", len(games))
+	return games, nil
+}
 
-	// games possible
-	fmt.Printf("sum of games that were possible: %d\n", gamesPossible(games))
-	fmt.Printf("sum of the power of sets: %d\n", powerOfMinimumSets(games))
+func main() {
+	if err := cli.NewCmd(2023, 2, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
 }
 
 func gamesPossible(games []game) (sum int) {

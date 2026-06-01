@@ -2,14 +2,15 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"strconv"
 	"strings"
 	"unicode"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 var intMap = map[int]string{
@@ -70,18 +71,18 @@ func GetDigit(input string) (int, error) {
 	return strconv.Atoi(string(digits))
 }
 
+func part1(b []byte) (any, error) {
+	return Scan(bytes.NewReader(b), GetDigit)
+}
+
+func part2(b []byte) (any, error) {
+	return Scan(bytes.NewReader(b), GetDigitWords)
+}
+
 func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
+	if err := cli.NewCmd(2023, 1, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
 	}
-
-	answer, err := Scan(ctx.Reader(), GetDigitWords)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("the answer is: %v\n", answer)
 }
 
 func Scan(r io.Reader, f func(string) (int, error)) (int, error) {
