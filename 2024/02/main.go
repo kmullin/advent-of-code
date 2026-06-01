@@ -2,13 +2,15 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"fmt"
 	"io"
-	"log"
 	"math"
 	"strconv"
 	"strings"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 type Reports []Report
@@ -86,16 +88,17 @@ func ReadInput(r io.Reader) (Reports, error) {
 	return reports, nil
 }
 
+func part1(b []byte) (any, error) {
+	reports, err := ReadInput(bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+
+	return fmt.Sprintf("Number of safe reports: %v", reports.NumSafe()), nil
+}
+
 func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
+	if err := cli.NewCmd(2024, 2, part1).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
 	}
-
-	reports, err := ReadInput(ctx.Reader())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Printf("Number of safe reports: %v", reports.NumSafe())
 }
