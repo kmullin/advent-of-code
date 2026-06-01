@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"log"
 	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 // OASIS Oasis And Sand Instability Sensor
@@ -83,18 +83,30 @@ func findSteps(nums []int) (steps []int) {
 	return
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func part1(b []byte) (any, error) {
 	var o OASIS
-	err = o.UnmarshalText(ctx.Bytes())
-	if err != nil {
-		log.Fatal(err)
+	if err := o.UnmarshalText(b); err != nil {
+		return nil, err
 	}
 
-	fmt.Printf("History (%v) Extrapolated: %v\n", len(o.History), o.Extrapolate(1))
-	fmt.Printf("History (%v) Extrapolated: %v\n", len(o.History), o.Extrapolate(2))
+	return fmt.Sprintf("History (%v) Extrapolated: %v",
+		len(o.History),
+		o.Extrapolate(1)), nil
+}
+
+func part2(b []byte) (any, error) {
+	var o OASIS
+	if err := o.UnmarshalText(b); err != nil {
+		return nil, err
+	}
+
+	return fmt.Sprintf("History (%v) Extrapolated: %v",
+		len(o.History),
+		o.Extrapolate(2)), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2023, 9, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
 }
