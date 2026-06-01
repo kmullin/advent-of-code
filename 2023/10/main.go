@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"slices"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 // Tiles represents the tiles given as input
@@ -167,27 +167,34 @@ func shoelaceArea(coords []coord) (n int) {
 	return int(math.Abs(1.0 / 2.0 * float64(n)))
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func part1(b []byte) (any, error) {
 	var tiles Tiles
-	err = tiles.UnmarshalText(ctx.Bytes())
-	if err != nil {
-		log.Fatal(err)
+	if err := tiles.UnmarshalText(b); err != nil {
+		return nil, err
 	}
 
 	steps, err := tiles.FurthestPoint()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	fmt.Printf("Furthest Point: %v\n", steps)
+	return fmt.Sprintf("Furthest Point: %v", steps), nil
+}
+
+func part2(b []byte) (any, error) {
+	var tiles Tiles
+	if err := tiles.UnmarshalText(b); err != nil {
+		return nil, err
+	}
 
 	insideCount, err := tiles.InsideTiles()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	fmt.Printf("Inside Tiles: %v\n", insideCount)
+	return fmt.Sprintf("Inside Tiles: %v\n", insideCount), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2023, 10, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
 }
