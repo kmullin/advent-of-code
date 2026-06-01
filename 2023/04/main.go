@@ -4,13 +4,13 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"log"
 	"math"
 	"regexp"
 	"slices"
 	"strconv"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 var cardHeader = regexp.MustCompile(`^Card\s+(\d+): (.*)$`)
@@ -117,18 +117,24 @@ func convertDigits(b []byte) (ints []int) {
 	return
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func part1(b []byte) (any, error) {
 	var cr cardReader
-	err = cr.UnmarshalText(ctx.Bytes())
-	if err != nil {
-		log.Fatal(err)
+	if err := cr.UnmarshalText(b); err != nil {
+		return nil, err
 	}
+	return fmt.Sprintf("total value of all cards: %v", cr.Value()), nil
+}
 
-	fmt.Printf("total value of all cards: %v\n", cr.Value())
-	fmt.Printf("total revised value of all cards: %v\n", cr.RevisedValue())
+func part2(b []byte) (any, error) {
+	var cr cardReader
+	if err := cr.UnmarshalText(b); err != nil {
+		return nil, err
+	}
+	return fmt.Sprintf("total revised value of all cards: %v", cr.RevisedValue()), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2023, 4, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
 }
