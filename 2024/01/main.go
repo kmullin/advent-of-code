@@ -2,14 +2,15 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"math"
 	"slices"
 	"strconv"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 func ReadInput(r io.Reader) (left []int, right []int, err error) {
@@ -75,20 +76,29 @@ func GetSimilarity(l, r []int) (similarity int) {
 	return
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
+func part1(b []byte) (any, error) {
+	l, r, err := ReadInput(bytes.NewReader(b))
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	l, r, err := ReadInput(ctx.Reader())
-	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	distance := GetDistance(l, r)
-	fmt.Printf("Total Distance: %v\n", distance)
+	return fmt.Sprintf("Total Distance: %v", distance), nil
+}
+
+func part2(b []byte) (any, error) {
+	l, r, err := ReadInput(bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
 
 	similarity := GetSimilarity(l, r)
-	fmt.Printf("Similarity: %v\n", similarity)
+	return fmt.Sprintf("Similarity: %v\n", similarity), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2024, 1, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
+
 }
