@@ -1,14 +1,21 @@
 package main
 
 import (
-	"log"
-
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
+func part1(b []byte) (any, error) {
+	return 0, nil
+}
+
+func part2(b []byte) (any, error) {
+	return 0, nil
+}
+
 func main() {
-	cmd := cli.NewCmd({{ .Year }}, {{ .Day }})
+	cmd := cli.NewCmd({{ .Year }}, {{ .Day }}, part1, part2)
 	if err := cmd.Execute(); err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("")
 	}
 }
