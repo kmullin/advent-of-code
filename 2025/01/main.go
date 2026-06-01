@@ -110,8 +110,8 @@ func (d *Dial) RotateCount(r Rotation) int {
 	return num_zeros
 }
 
-func part1(b []byte) (string, error) {
-	rotations, err := ReadInput(bytes.NewReader(b))
+func part1(b []byte) (any, error) {
+	rotations, err := ReadInput(bytes.NewReader(bytes.TrimSpace(b)))
 	if err != nil {
 		return "", err
 	}
@@ -129,8 +129,8 @@ func part1(b []byte) (string, error) {
 	return fmt.Sprintf("number of zeros: %v", zero_pos), nil
 }
 
-func part2(b []byte) (string, error) {
-	rotations, err := ReadInput(bytes.NewReader(b))
+func part2(b []byte) (any, error) {
+	rotations, err := ReadInput(bytes.NewReader(bytes.TrimSpace(b)))
 	if err != nil {
 		return "", err
 	}

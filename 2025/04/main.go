@@ -1,18 +1,19 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"log"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
 	"github.com/kmullin/advent-of-code/internal/common"
+	"github.com/rs/zerolog/log"
 )
 
 const paperRoll = '@'
 
 // findPaperRolls finds the rolls of paper which have fewer than 4 rolls of paper in the 8 adjacent positions
-func findPaperRolls(b []byte) (int, error) {
-	grid, err := common.NewGrid(b)
+func findPaperRolls(b []byte) (any, error) {
+	grid, err := common.NewGrid(bytes.TrimSpace(b))
 	if err != nil {
 		return 0, fmt.Errorf("matrix is not a rectangle: %w", err)
 	}
@@ -43,8 +44,8 @@ func countSurroundingPaperRolls(g *common.Grid, maxNum int) (totalCount int) {
 }
 
 // findPaperRolls2 finds the rolls of paper which have fewer than 4 rolls of paper in the 8 adjacent positions repeated (of course)
-func findPaperRolls2(b []byte) (int, error) {
-	grid, err := common.NewGrid(b)
+func findPaperRolls2(b []byte) (any, error) {
+	grid, err := common.NewGrid(bytes.TrimSpace(b))
 	if err != nil {
 		return 0, fmt.Errorf("matrix is not a rectangle: %w", err)
 	}
@@ -85,20 +86,8 @@ func findPaperRolls2(b []byte) (int, error) {
 }
 
 func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
+	cmd := cli.NewCmd(2025, 4, findPaperRolls, findPaperRolls2)
+	if err := cmd.Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
 	}
-
-	count, err := findPaperRolls(ctx.Bytes())
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("part 1: %v\n", count)
-
-	count, err = findPaperRolls2(ctx.Bytes())
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("part 2: %v\n", count)
 }

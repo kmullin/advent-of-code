@@ -2,13 +2,12 @@ package main
 
 import (
 	"bytes"
-	"fmt"
-	"log"
 	"strings"
 	"unicode"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
 	"github.com/kmullin/advent-of-code/internal/common"
+	"github.com/rs/zerolog/log"
 )
 
 func multiplyF(n, sum int) int {
@@ -47,8 +46,8 @@ func maxLineLen(bb [][]byte) int {
 	return m
 }
 
-func readRightToLeft(b []byte) int {
-	bb := bytes.Split(b, []byte("\n"))
+func readRightToLeft(b []byte) (any, error) {
+	bb := bytes.Split(bytes.TrimRight(b, "\n"), []byte("\n"))
 	symbols := bytes.Fields(bb[len(bb)-1])
 	maxLen := maxLineLen(bb[:len(bb)-1])
 
@@ -66,7 +65,12 @@ func readRightToLeft(b []byte) int {
 				continue
 			}
 
-			log.Printf("found:%q row:%v/%v col:%v/%v", bb[row][col], row, len(bb)-2, col, maxLen-1)
+			log.Debug().
+				Str("found", string(bb[row][col])).
+				Int("row", row).
+				Int("col", col).
+				Msg("")
+				// ("found:%q row:%v/%v col:%v/%v", bb[row][col], row, len(bb)-2, col, maxLen-1)
 
 			if unicode.IsSpace(rune(bb[row][col])) {
 				continue
@@ -91,14 +95,14 @@ func readRightToLeft(b []byte) int {
 		case '+':
 			total = sumF(n, total)
 		}
-		log.Printf("total:%v n:%v col:%v", total, n, col)
+		log.Debug().Int("total", total).Int("n", n).Int("col", col).Msg("")
 	}
 
-	return grandTotal + total
+	return grandTotal + total, nil
 }
 
-func ReadInput(b []byte) int {
-	things, symbols := readInput(b)
+func ReadInput(b []byte) (any, error) {
+	things, symbols := readInput(bytes.TrimRight(b, "\n"))
 
 	var mathFunc func(int, int) int
 	grandTotal := 0
@@ -120,19 +124,12 @@ func ReadInput(b []byte) int {
 		//log.Printf("%v of col:%v %v", sym, col, sum)
 	}
 
-	return grandTotal
+	return grandTotal, nil
 }
 
 func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
+	cmd := cli.NewCmd(2025, 6, ReadInput, readRightToLeft)
+	if err := cmd.Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
 	}
-
-	b := bytes.TrimRight(ctx.Bytes(), "\n")
-	total := ReadInput(b)
-	fmt.Printf("part 1: %v\n", total)
-
-	totalS := readRightToLeft(b)
-	fmt.Printf("part 2: %v\n", totalS)
 }

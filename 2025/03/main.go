@@ -71,12 +71,12 @@ func ReadInput(r io.Reader, nDigits int) int {
 	return sum
 }
 
-func part1(b []byte) (string, error) {
-	return strconv.Itoa(ReadInput(bytes.NewReader(b), 2)), nil
+func part1(b []byte) (any, error) {
+	return ReadInput(bytes.NewReader(b), 2), nil
 }
 
-func part2(b []byte) (string, error) {
-	return strconv.Itoa(ReadInput(bytes.NewReader(b), 12)), nil
+func part2(b []byte) (any, error) {
+	return ReadInput(bytes.NewReader(b), 12), nil
 }
 
 func main() {

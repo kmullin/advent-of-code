@@ -12,11 +12,11 @@ const exampleInput = `123 328  51 64
 *   +   *   + `
 
 func TestExample(t *testing.T) {
-	total := ReadInput([]byte(exampleInput))
+	total, _ := ReadInput([]byte(exampleInput))
 	assert.Equal(t, 4277556, total)
 }
 
 func TestExampleP2(t *testing.T) {
-	total := readRightToLeft([]byte(exampleInput))
+	total, _ := readRightToLeft([]byte(exampleInput))
 	assert.Equal(t, 3263827, total)
 }

@@ -2,14 +2,14 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
-	"io"
-	"log"
 	"sort"
 	"strings"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
 	"github.com/kmullin/advent-of-code/internal/common"
+	"github.com/rs/zerolog/log"
 )
 
 type Range struct {
@@ -46,8 +46,8 @@ func scanRanges(scanner *bufio.Scanner) ([]Range, error) {
 	return rg, nil
 }
 
-func findAllIngredients(r io.Reader) (int, error) {
-	scanner := bufio.NewScanner(r)
+func findAllIngredients(b []byte) (any, error) {
+	scanner := bufio.NewScanner(bytes.NewReader(b))
 
 	ranges, err := scanRanges(scanner)
 	if err != nil {
@@ -83,8 +83,8 @@ func findAllIngredients(r io.Reader) (int, error) {
 	return total, nil
 }
 
-func findFreshIngredients(r io.Reader) (int, error) {
-	scanner := bufio.NewScanner(r)
+func findFreshIngredients(b []byte) (any, error) {
+	scanner := bufio.NewScanner(bytes.NewReader(b))
 
 	rg, err := scanRanges(scanner)
 	if err != nil {
@@ -110,21 +110,8 @@ func findFreshIngredients(r io.Reader) (int, error) {
 }
 
 func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
+	cmd := cli.NewCmd(2025, 5, findFreshIngredients, findAllIngredients)
+	if err := cmd.Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
 	}
-
-	freshIngredients, err := findFreshIngredients(ctx.Reader())
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("part 1: %v\n", freshIngredients)
-
-	allIngredients, err := findAllIngredients(ctx.Reader())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("part 2: %v\n", allIngredients)
 }

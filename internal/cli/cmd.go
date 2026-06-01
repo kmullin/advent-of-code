@@ -27,7 +27,7 @@ func readReadme() string {
 	return string(b)
 }
 
-type ProblemRunner func([]byte) (string, error)
+type ProblemRunner func([]byte) (any, error)
 
 // NewCmd returns a new command for advent of code
 func NewCmd(year, day int, funcs ...ProblemRunner) *cobra.Command {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,13 +19,13 @@ const exampleInput = `3-5
 32`
 
 func TestExample(t *testing.T) {
-	freshIngredients, err := findFreshIngredients(strings.NewReader(exampleInput))
+	freshIngredients, err := findFreshIngredients([]byte(exampleInput))
 	assert.NoError(t, err)
 	assert.Equal(t, 3, freshIngredients)
 }
 
 func TestExampleP2(t *testing.T) {
-	allIngredients, err := findAllIngredients(strings.NewReader(exampleInput))
+	allIngredients, err := findAllIngredients([]byte(exampleInput))
 	assert.NoError(t, err)
 	assert.Equal(t, 14, allIngredients)
 }

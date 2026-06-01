@@ -92,14 +92,14 @@ func AddInvalidIDs(ranges []Range, f func(int) bool) int {
 	return count
 }
 
-func part1(b []byte) (string, error) {
+func part1(b []byte) (any, error) {
 	ranges := ReadInput(string(bytes.TrimSpace(b)))
-	return strconv.Itoa(AddInvalidIDs(ranges, repeatsTwice)), nil
+	return AddInvalidIDs(ranges, repeatsTwice), nil
 }
 
-func part2(b []byte) (string, error) {
+func part2(b []byte) (any, error) {
 	ranges := ReadInput(string(bytes.TrimSpace(b)))
-	return strconv.Itoa(AddInvalidIDs(ranges, repeatsTwiceOrMore)), nil
+	return AddInvalidIDs(ranges, repeatsTwiceOrMore), nil
 }
 
 func main() {
