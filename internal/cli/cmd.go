@@ -14,6 +14,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const InputFilename = "input.txt"
+
 func init() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
