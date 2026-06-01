@@ -5,12 +5,12 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"log"
 	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 type Hands []Hand
@@ -73,6 +73,7 @@ func (h *Hands) UnmarshalText(text []byte) error {
 	if err := scanner.Err(); err != nil {
 		return err
 	}
+	log.Debug().Msgf("Found %d hands", len(*h))
 	return nil
 }
 
@@ -195,19 +196,24 @@ func isOfAKind(m map[rune]int, n int) bool {
 	return false
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func part1(b []byte) (any, error) {
 	var h Hands
-	err = h.UnmarshalText(ctx.Bytes())
-	if err != nil {
-		log.Fatal(err)
+	if err := h.UnmarshalText(b); err != nil {
+		return nil, err
 	}
-	fmt.Printf("Found %d hands\n", len(h))
-	for i := 1; i <= 2; i++ {
-		fmt.Printf("Total Winnings Part %d: %d\n", i, h.TotalWinnings(i))
+	return h.TotalWinnings(1), nil
+}
+
+func part2(b []byte) (any, error) {
+	var h Hands
+	if err := h.UnmarshalText(b); err != nil {
+		return nil, err
+	}
+	return h.TotalWinnings(2), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2023, 7, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
 	}
 }
