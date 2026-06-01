@@ -2,12 +2,11 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 
 	"github.com/kmullin/advent-of-code/internal/cli"
+	"github.com/rs/zerolog/log"
 )
 
 var digitRe = regexp.MustCompile(`(\d+)`)
@@ -90,23 +89,24 @@ func (r *Race) WinnableTimings() (possibleWins int) {
 	return
 }
 
-func main() {
-	ctx, err := cli.Setup(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func part1(b []byte) (any, error) {
 	var races Races
-	err = races.UnmarshalText(ctx.Bytes())
-	if err != nil {
-		log.Fatal(err)
+	if err := races.UnmarshalText(b); err != nil {
+		return nil, err
 	}
-	fmt.Printf("Part 1: %+v\n", races.NumberOfWinnableRaces())
+	return races.NumberOfWinnableRaces(), nil
+}
 
+func part2(b []byte) (any, error) {
 	var race Race
-	err = race.UnmarshalText(ctx.Bytes())
-	if err != nil {
-		log.Fatal(err)
+	if err := race.UnmarshalText(b); err != nil {
+		return nil, err
 	}
-	fmt.Printf("Part 2: %+v\n", race.WinnableTimings())
+	return race.WinnableTimings(), nil
+}
+
+func main() {
+	if err := cli.NewCmd(2023, 6, part1, part2).Execute(); err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
 }
